@@ -27,12 +27,13 @@ public class MySQL {
 	private	String		password;
 
 	//SQLクエリ
-	private	Statement		statement;
-	private	String			sql;
-	private	StringBuilder	columnBuilder;
-	private	StringBuilder	valueBuilder;
+	private	Statement			statement;
+	private	PreparedStatement	preparedStatement;
+	private	String				sql;
+	private	StringBuilder		columnBuilder;
+	private	StringBuilder		valueBuilder;
 	
-	//DBデータ型
+	//DBデータ
 	private ResultSetMetaData			rsmd;
 	private	ArrayList<String>			column;
 	private	HashMap<String , Object>	recode;
@@ -90,12 +91,10 @@ public class MySQL {
 			sql = "insert into " + table;
 			sql += columnBuilder.toString() + " values" + valueBuilder.toString();
 			
-			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement = connection.prepareStatement(sql);
 			for(int i = 1; i < column.size(); i++){
 				preparedStatement.setObject(i, data.get(column.get(i)));
 			}
-
-			System.out.println(preparedStatement.toString());
 			preparedStatement.execute();
 			
 		} catch (SQLException e) {
@@ -109,7 +108,12 @@ public class MySQL {
 			statement = connection.createStatement();
 			sql = "select * from receivedata";
 			ResultSet result = statement.executeQuery(sql);
+			recode = new HashMap<>();
 			while(result.next()){
+				for(int i = 0; i < column.size(); i++){
+					System.out.println(column.get(i) + result.getObject(i));
+					//recode.put();
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -139,8 +143,6 @@ public class MySQL {
 			rsmd = result.getMetaData();
 			for(int i = 1; i <= rsmd.getColumnCount(); i++){
 				column.add(rsmd.getColumnName(i));
-				System.out.print(rsmd.getColumnTypeName(i) + "\t");
-				System.out.println(rsmd.getColumnClassName(i));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

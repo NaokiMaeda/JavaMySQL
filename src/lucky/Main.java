@@ -1,6 +1,6 @@
 package lucky;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Main {
@@ -10,12 +10,13 @@ public class Main {
 		db.ConnectionDB();
 
 		HashMap<String , Object> data = new HashMap<>();
-		data.put("time" , new Timestamp(System.currentTimeMillis()));
+		data.put("time" , new Date());
 		data.put("format", "raw");
 		data.put("freq", 38);
 		data.put("data", new byte[] {0x63});
 		data.put("device", "Device1");
-		db.insert(data);
+		//db.insert(data);
+		db.select();
 		db.DisconnectionDB();
 	}
 
