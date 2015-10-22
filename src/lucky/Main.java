@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class Main {
-
+	
 	public static void main(String[] args) {
-		MySQL db = new MySQL();
+		MySQL db = new MySQL("db_info.json");
 		db.ConnectionDB();
 
 		HashMap<String , Object> data = new HashMap<>();

@@ -34,21 +34,22 @@ public class MySQL {
 	private	StringBuilder		valueBuilder;
 	
 	//DBデータ
-	private ResultSetMetaData			rsmd;
-	private	ArrayList<String>			column;
-	private	HashMap<String , Object>	recode;
+	private ResultSetMetaData					rsmd;
+	private	ArrayList<String>					column;
+	private	ArrayList<HashMap<String , Object>>	recodeList;
+	private	HashMap<String , Object>			recode;
 	
-	public MySQL(){
+	public MySQL(String configFile){
 		this.column = new ArrayList<>();
 		this.recode = new HashMap<>();
 		
-		setDBInfo();
+		setDBInfo(configFile);
 	}
 	
 	public void ConnectionDB(){
 		try {
 			connection = DriverManager.getConnection(address , user , password);
-			getColumn(column);
+			setColumn(column);
 			System.out.println("接続完了");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -76,7 +77,7 @@ public class MySQL {
 			columnBuilder.append("(");
 			valueBuilder.append("(");
 			
-			for(int i = 1; i < column.size(); i++){
+			for(int i = 1; i < column.size(); i++){		//Index 0は,idなのでinsert対象から除外
 				columnBuilder.append(column.get(i));
 				columnBuilder.append(",");
 				valueBuilder.append("?");
@@ -108,16 +109,37 @@ public class MySQL {
 			statement = connection.createStatement();
 			sql = "select * from receivedata";
 			ResultSet result = statement.executeQuery(sql);
+			recodeList = new ArrayList<>();
 			recode = new HashMap<>();
 			while(result.next()){
 				for(int i = 0; i < column.size(); i++){
-					System.out.println(column.get(i) + result.getObject(i));
-					//recode.put();
+					recode.put(column.get(i) , result.getObject(i + 1));
+					System.out.println(column.get(i) + result.getObject(i + 1));
 				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void select(String sql){
+		if(!hasDB())	return;
+		try {
+			statement = connection.createStatement();
+			this.sql = sql;
+			ResultSet result = statement.executeQuery(this.sql);
+			recodeList = new ArrayList<>();
+			while(result.next()){
+				HashMap<String , Object> recode = new HashMap<>();
+				for(int i = 0; i < column.size(); i++){
+					recode.put(column.get(i) , result.getObject(i + 1));
+				}
+				recodeList.add(recode);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public ArrayList<String> getColumn(){
@@ -135,7 +157,7 @@ public class MySQL {
 		return false;
 	}
 	
-	private void getColumn(ArrayList<String> column){
+	private void setColumn(ArrayList<String> column){
 		try {
 			statement = connection.createStatement();
 			sql = "select * from receivedata";
@@ -149,9 +171,9 @@ public class MySQL {
 		}
 	}
 	
-	private void setDBInfo(){
+	private void setDBInfo(String configFile){
 		try {
-			DBInfo dbInfo = JSON.decode(new FileReader("db_info.json") , DBInfo.class);
+			DBInfo dbInfo = JSON.decode(new FileReader(configFile) , DBInfo.class);
 			this.host = dbInfo.getHost();
 			this.DBName = dbInfo.getDBName();
 			this.table = dbInfo.getTable();
