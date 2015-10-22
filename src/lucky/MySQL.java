@@ -37,11 +37,9 @@ public class MySQL {
 	private ResultSetMetaData					rsmd;
 	private	ArrayList<String>					column;
 	private	ArrayList<HashMap<String , Object>>	recodeList;
-	private	HashMap<String , Object>			recode;
 	
 	public MySQL(String configFile){
 		this.column = new ArrayList<>();
-		this.recode = new HashMap<>();
 		
 		setDBInfo(configFile);
 	}
@@ -110,13 +108,29 @@ public class MySQL {
 			sql = "select * from receivedata";
 			ResultSet result = statement.executeQuery(sql);
 			recodeList = new ArrayList<>();
-			recode = new HashMap<>();
 			while(result.next()){
+				HashMap<String , Object> recode = new HashMap<>();
 				for(int i = 0; i < column.size(); i++){
 					recode.put(column.get(i) , result.getObject(i + 1));
-					System.out.println(column.get(i) + result.getObject(i + 1));
+					//System.out.println(column.get(i) + result.getObject(i + 1));
 				}
+				recodeList.add(recode);
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void delete(String sql){
+		
+	}
+	
+	public void deleteAll(){
+		if(!hasDB())	return;
+		try {
+			statement = connection.createStatement();
+			sql = "truncate table " + table;
+			statement.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

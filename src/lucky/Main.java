@@ -17,6 +17,7 @@ public class Main {
 		data.put("device", "Device1");
 		//db.insert(data);
 		db.select();
+		db.deleteAll();
 		db.DisconnectionDB();
 	}
 
