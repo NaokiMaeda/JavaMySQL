@@ -7,7 +7,7 @@ INSERTメソッドに`HashMap<String , Object>`を渡す.
 
 * SELECT  
 SELECTメソッドに実行したいSQL構文を入力  
-結果は,`Arraylist<HashMap>`に入力される
+結果は,`Arraylist<HashMap<String , Object>>`に入力される
 * DELETE  
 現状では,全件削除のDeleteAllのみ実装　　
 
