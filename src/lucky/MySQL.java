@@ -121,23 +121,8 @@ public class MySQL {
 		}
 	}
 	
-	public void delete(String sql){
-		
-	}
-	
-	public void deleteAll(){
-		if(!hasDB())	return;
-		try {
-			statement = connection.createStatement();
-			sql = "truncate table " + table;
-			statement.executeUpdate(sql);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void select(String sql){
-		if(!hasDB())	return;
+	public ArrayList<HashMap<String , Object>> select(String sql){
+		if(!hasDB())	return null;
 		try {
 			statement = connection.createStatement();
 			this.sql = sql;
@@ -153,7 +138,22 @@ public class MySQL {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return recodeList;
+	}
+	
+	public void delete(String sql){
 		
+	}
+	
+	public void deleteAll(){
+		if(!hasDB())	return;
+		try {
+			statement = connection.createStatement();
+			sql = "truncate table " + table;
+			statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public ArrayList<String> getColumn(){
