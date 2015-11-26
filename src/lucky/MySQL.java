@@ -40,7 +40,6 @@ public class MySQL {
 	
 	public MySQL(String configFile){
 		this.column = new ArrayList<>();
-		
 		setDBInfo(configFile);
 	}
 	
@@ -105,14 +104,14 @@ public class MySQL {
 		if(!hasDB())	return;
 		try {
 			statement = connection.createStatement();
-			sql = "select * from receivedata";
+			sql = "select * from " + table;
 			ResultSet result = statement.executeQuery(sql);
 			recodeList = new ArrayList<>();
 			while(result.next()){
 				HashMap<String , Object> recode = new HashMap<>();
 				for(int i = 0; i < column.size(); i++){
-					recode.put(column.get(i) , result.getObject(i + 1));
-					//System.out.println(column.get(i) + result.getObject(i + 1));
+					recode.put(column.get(i) , result.getObject(column.get(i)));
+					System.out.println(column.get(i) + result.getObject(i + 1));
 				}
 				recodeList.add(recode);
 			}
@@ -121,20 +120,32 @@ public class MySQL {
 		}
 	}
 	
-	public ArrayList<HashMap<String , Object>> select(String sql){
+	public ArrayList<HashMap<String , Object>> select(ArrayList<String> select){
 		if(!hasDB())	return null;
 		try {
 			statement = connection.createStatement();
-			this.sql = sql;
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("select ");
+			for(int i = 0; i < select.size(); i++){
+				stringBuilder.append(select.get(i));
+				stringBuilder.append(", ");
+			}
+			stringBuilder.delete(stringBuilder.length() -2 , stringBuilder.length());
+			stringBuilder.append(" from ");
+			stringBuilder.append(table);
+			
+			this.sql = stringBuilder.toString();
+			
 			ResultSet result = statement.executeQuery(this.sql);
 			recodeList = new ArrayList<>();
 			while(result.next()){
 				HashMap<String , Object> recode = new HashMap<>();
-				for(int i = 0; i < column.size(); i++){
-					recode.put(column.get(i) , result.getObject(i + 1));
+				for(int i = 0; i < select.size(); i++){
+					recode.put(select.get(i) , result.getObject(select.get(i)));
 				}
 				recodeList.add(recode);
 			}
+			result.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -174,7 +185,7 @@ public class MySQL {
 	private void setColumn(ArrayList<String> column){
 		try {
 			statement = connection.createStatement();
-			sql = "select * from receivedata";
+			sql = "select * from " + table;
 			ResultSet result = statement.executeQuery(sql);
 			rsmd = result.getMetaData();
 			for(int i = 1; i <= rsmd.getColumnCount(); i++){
