@@ -21,6 +21,7 @@ public class MySQL {
 	//DB情報
 	private	String		address;
 	private	String		host;
+	private	int			port;
 	private String		DBName;
 	private	String		table;
 	private String		user;
@@ -46,7 +47,7 @@ public class MySQL {
 	public void ConnectionDB(){
 		try {
 			connection = DriverManager.getConnection(address , user , password);
-			setColumn(column);
+			column = getColumnList(column);
 			System.out.println("接続完了");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -182,29 +183,32 @@ public class MySQL {
 		return false;
 	}
 	
-	private void setColumn(ArrayList<String> column){
+	private ArrayList<String> getColumnList(ArrayList<String> column){
+		ArrayList<String> columnList = new ArrayList<>();
 		try {
 			statement = connection.createStatement();
 			sql = "select * from " + table;
 			ResultSet result = statement.executeQuery(sql);
 			rsmd = result.getMetaData();
 			for(int i = 1; i <= rsmd.getColumnCount(); i++){
-				column.add(rsmd.getColumnName(i));
+				columnList.add(rsmd.getColumnName(i));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return columnList;
 	}
 	
 	private void setDBInfo(String configFile){
 		try {
 			DBInfo dbInfo = JSON.decode(new FileReader(configFile) , DBInfo.class);
 			this.host = dbInfo.getHost();
+			this.port	= dbInfo.getPort();
 			this.DBName = dbInfo.getDBName();
 			this.table = dbInfo.getTable();
 			this.user = dbInfo.getUser();
 			this.password = dbInfo.getPassword();
-			address = "jdbc:mysql://" + host + ":3306/" + DBName;
+			address = "jdbc:mysql://" + host + ":" + port + "/" + DBName;
 		} catch (JSONException | IOException e) {
 			e.printStackTrace();
 		}

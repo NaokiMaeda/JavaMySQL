@@ -1,11 +1,12 @@
 package lucky;
 
 public class DBInfo {
-	private String host;
-	private String DBName;
-	private String table;
-	private String user;
-	private String password;
+	private String	host;
+	private	int		port;
+	private String	DBName;
+	private String	table;
+	private String	user;
+	private String	password;
 	
 	public DBInfo(){
 		
@@ -13,6 +14,10 @@ public class DBInfo {
 	
 	public void setHost(String host){
 		this.host = host;
+	}
+	
+	public void setPort(int port){
+		this.port = port;
 	}
 	
 	public void setDBName(String DBName){
@@ -33,6 +38,10 @@ public class DBInfo {
 	
 	public String getHost(){
 		return this.host;
+	}
+	
+	public int getPort(){
+		return this.port;
 	}
 	
 	public String getDBName(){

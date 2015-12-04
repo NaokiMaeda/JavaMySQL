@@ -1,6 +1,7 @@
 package lucky;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Main {
 	
@@ -16,7 +17,10 @@ public class Main {
 		
 		ArrayList<String> list = new ArrayList<>();
 		list.add("age");
-		db.select(list);
+		ArrayList<HashMap<String , Object>>result =  db.select(list);
+		for(int i = 0; i < result.size(); i++){
+			System.out.println(result.get(i).get("age"));
+		}
 		db.DisconnectionDB();
 	}
 
