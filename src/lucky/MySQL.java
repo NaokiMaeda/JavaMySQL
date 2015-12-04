@@ -202,12 +202,12 @@ public class MySQL {
 	private void setDBInfo(String configFile){
 		try {
 			DBInfo dbInfo = JSON.decode(new FileReader(configFile) , DBInfo.class);
-			this.host = dbInfo.getHost();
-			this.port	= dbInfo.getPort();
-			this.DBName = dbInfo.getDBName();
-			this.table = dbInfo.getTable();
-			this.user = dbInfo.getUser();
-			this.password = dbInfo.getPassword();
+			this.host		= dbInfo.getHost();
+			this.port		= dbInfo.getPort();
+			this.DBName 	= dbInfo.getDBName();
+			this.table		= dbInfo.getTable();
+			this.user		= dbInfo.getUser();
+			this.password	= dbInfo.getPassword();
 			address = "jdbc:mysql://" + host + ":" + port + "/" + DBName;
 		} catch (JSONException | IOException e) {
 			e.printStackTrace();
