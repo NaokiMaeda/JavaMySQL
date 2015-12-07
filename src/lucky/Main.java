@@ -15,11 +15,9 @@ public class Main {
 		MySQL db = new MySQL("db_info.json");
 		db.ConnectionDB();
 		
-		ArrayList<String> list = new ArrayList<>();
-		list.add("age");
-		ArrayList<HashMap<String , Object>>result =  db.select(list);
+		ArrayList<HashMap<String , Object>>result =  db.select();
 		for(int i = 0; i < result.size(); i++){
-			System.out.println(result.get(i).get("age"));
+			System.out.println(result.get(i).get("name"));
 		}
 		db.DisconnectionDB();
 	}

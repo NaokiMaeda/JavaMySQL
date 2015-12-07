@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import net.arnx.jsonic.JSON;
 import net.arnx.jsonic.JSONException;
@@ -33,11 +34,14 @@ public class MySQL {
 	private	String				sql;
 	private	StringBuilder		columnBuilder;
 	private	StringBuilder		valueBuilder;
+	private	StringBuilder		deleteBuilder;
+	private	StringBuilder		whereBuilder;
+	private	ResultSet			resultSet;
 	
 	//DBデータ
 	private ResultSetMetaData					rsmd;
 	private	ArrayList<String>					column;
-	private	ArrayList<HashMap<String , Object>>	recodeList;
+	private	ArrayList<HashMap<String , Object>>	resultList;
 	
 	public MySQL(String configFile){
 		this.column = new ArrayList<>();
@@ -101,27 +105,28 @@ public class MySQL {
 		}
 	}
 	
-	public void select(){
-		if(!hasDB())	return;
+	public ArrayList<HashMap<String , Object>> select(){
+		if(!hasDB())	return null;
 		try {
 			statement = connection.createStatement();
 			sql = "select * from " + table;
 			ResultSet result = statement.executeQuery(sql);
-			recodeList = new ArrayList<>();
+			resultList = new ArrayList<>();
 			while(result.next()){
 				HashMap<String , Object> recode = new HashMap<>();
 				for(int i = 0; i < column.size(); i++){
 					recode.put(column.get(i) , result.getObject(column.get(i)));
-					System.out.println(column.get(i) + result.getObject(i + 1));
 				}
-				recodeList.add(recode);
+				resultList.add(recode);
 			}
+			resultSet.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return resultList;
 	}
 	
-	public ArrayList<HashMap<String , Object>> select(ArrayList<String> select){
+	public ArrayList<HashMap<String , Object>> select(ArrayList<String> select , HashMap<String, Object> terms){
 		if(!hasDB())	return null;
 		try {
 			statement = connection.createStatement();
@@ -135,33 +140,46 @@ public class MySQL {
 			stringBuilder.append(" from ");
 			stringBuilder.append(table);
 			
-			this.sql = stringBuilder.toString();
+			sql = stringBuilder.toString();
+			sql += createWhere(terms);
 			
-			ResultSet result = statement.executeQuery(this.sql);
-			recodeList = new ArrayList<>();
-			while(result.next()){
+			resultSet = statement.executeQuery(this.sql);
+			resultList = new ArrayList<>();
+			while(resultSet.next()){
 				HashMap<String , Object> recode = new HashMap<>();
 				for(int i = 0; i < select.size(); i++){
-					recode.put(select.get(i) , result.getObject(select.get(i)));
+					recode.put(select.get(i) , resultSet.getObject(select.get(i)));
 				}
-				recodeList.add(recode);
+				resultList.add(recode);
 			}
-			result.close();
+			resultSet.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return recodeList;
+		return resultList;
 	}
 	
-	public void delete(String sql){
-		
+	public void delete(HashMap<String , Object> deleteTerms){
+		if(!hasDB())	return;
+		try {
+			statement = connection.createStatement();
+			deleteBuilder = new StringBuilder();
+			deleteBuilder.append("delete from ");
+			deleteBuilder.append(table);
+			
+			sql = deleteBuilder.toString();
+			sql += createWhere(deleteTerms);
+			statement.executeUpdate(sql);
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void deleteAll(){
 		if(!hasDB())	return;
 		try {
 			statement = connection.createStatement();
-			sql = "truncate table " + table;
+			sql = "delete from " + table;
 			statement.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -170,6 +188,17 @@ public class MySQL {
 	
 	public ArrayList<String> getColumn(){
 		return this.column;
+	}
+	
+	private String createWhere(HashMap<String , Object> terms){
+		whereBuilder = new StringBuilder();
+		whereBuilder.append(" where ");
+		for (Map.Entry<String , Object> term : terms.entrySet()) {
+			whereBuilder.append(term.getKey());
+			whereBuilder.append(" = ");
+			whereBuilder.append(term.getValue());
+		}
+		return whereBuilder.toString();
 	}
 	
 	private boolean hasDB(){
